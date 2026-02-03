@@ -1,1 +1,427 @@
+Use Agent Bricks: Information Extraction
+Beta
+This feature is in Beta. Workspace admins can control access to this feature from the Previews page. See Manage Databricks previews.
 
+This page describes how to create a generative AI agent for information extraction using Agent Bricks: Information Extraction.
+
+Agent Bricks provides a simple approach to build domain-specific, high-quality AI agent systems for common AI use cases.
+
+What is Agent Bricks: Information Extraction?
+Agent Bricks supports information extraction and simplifies the process of transforming a large volume of unlabeled text documents into a structured table with extracted information for each document.
+
+Examples of information extraction include:
+
+Extracting prices and lease information from contracts.
+Organizing data from customer notes.
+Getting important details from news articles.
+Agent Bricks: Information Extraction leverages automated evaluation capabilities, including MLflow and Agent Evaluation, to enable rapid assessment of the cost-quality tradeoff for your specific extraction task. This assessment allows you to make informed decisions about the balance between accuracy and resource investment.
+
+Agent Bricks uses default storage to store temporary data transformations, model checkpoints, and internal metadata that power each agent. On agent deletion, all data associated with the agent is removed from default storage.
+
+Requirements
+A workspace that includes the following:
+Mosaic AI Agent Bricks Preview (Beta) enabled. See Manage Databricks previews.
+Serverless compute enabled. See Serverless compute requirements.
+Unity Catalog enabled. See Enable a workspace for Unity Catalog.
+Access to foundation models in Unity Catalog through the system.ai schema.
+Access to a serverless budget policy with a nonzero budget.
+A workspace in one of the supported regions: us-east-1 or us-west-2.
+Ability to use the ai_query SQL function.
+Files that you want to extract data from. The files must be in a Unity Catalog volume or table.
+If you want to use PDFs, convert them to a Unity Catalog table first. See Use PDFs in Agent Bricks.
+To build your agent, you need at least 1 unlabeled document in your Unity Catalog volume or 1 row in your table.
+Create an information extraction agent
+Go to Agents icon. Agents in the left navigation pane of your workspace. From the Information Extraction tile, click Build.
+
+Step 1: Configure your agent
+Configure your agent:
+
+In the Name field, enter a name for your agent.
+
+Select the type of data you want to provide. You can choose either Unlabeled dataset or Labeled dataset.
+
+Select the dataset to provide.
+
+Unlabeled dataset
+Labeled dataset
+If you select Unlabeled dataset:
+
+In the Dataset location field, select the folder or table you want to use from your Unity Catalog volume. If you select a folder, the folder must contain documents in a supported document format.
+
+The following is an example volume:
+
+/Volumes/main/info-extraction/bbc_articles/
+
+If you're providing a table, select the column containing your text data from the dropdown. The table column must contain data in a supported data format.
+
+If you want to use PDFs, convert them to a Unity Catalog table first. See Use PDFs in Agent Bricks.
+
+Agent Bricks automatically infers and generates a sample JSON output containing data extracted from your dataset in the Sample JSON output field. You can accept the sample output, edit it, or replace it with an example of your desired JSON output. The agent returns extracted information using this format.
+
+Verify that the Sample JSON output field matches your desired response format. Edit as needed.
+
+For example, the following sample JSON output might be used to extract information from a set of news articles:
+
+JSON
+{
+  "title": "Economy Slides to Recession",
+  "category": "Politics",
+  "paragraphs": [
+    {
+      "summary": "GDP fell by 0.1% in the last three months of 2004.",
+      "word_count": 38
+    },
+    {
+      "summary": "Consumer spending had been depressed by one-off factors such as the unseasonably mild winter.",
+      "word_count": 42
+    }
+  ],
+  "tags": ["Recession", "Economy", "Consumer Spending"],
+  "estimate_time_to_read_min": 1,
+  "published_date": "2005-01-15",
+  "needs_review": false
+}
+
+
+Under Model choice, select the best model for your information extraction agent:
+
+Optimize for Scale (default): Choose this option if you're processing large volumes of data or prefer a cost-effective agent. This model is designed for high throughput and faster turnaround time and is suitable for most information extraction tasks.
+Optimize for Complexity: Choose this option if you need complex reasoning and prioritize accuracy over speed and cost. This model offers higher reasoning capabilities for longer documents (such as financial filings) and can handle more complex extractions (such as extracting 40+ schema fields).
+Click Create agent.
+
+Supported document formats
+The following table shows the supported document file types for your source documents if you provide a Unity Catalog volume.
+
+Code files
+
+Document files
+
+Log files
+
+.c
+.cc
+.cpp
+.cs
+.css
+.cxx
+.go
+.h
+.hpp
+.htm
+.html
+.java
+.js
+.json
+.jsonl
+.jsx
+.lua
+.md
+.php
+.pl
+.py
+.rb
+.sh
+.swift
+.tex
+.ts
+.tsx
+.md
+.rst
+.tex
+.txt
+.xml
+.xsd
+.xsl
+.diff
+.err
+.log
+.out
+.patch
+Supported data formats
+Agent Bricks: Information Extraction supports the following data types and schemas for your source documents if you provide a Unity Catalog table. Agent Bricks can also extract these data types from each document.
+
+str
+int
+float
+boolean
+enum (used for classification tasks where the agent should only select from predefined categories)
+Object
+Arrays
+enum (suited for classification tasks where we want the agent to output only from a set of predefined categories) object (in place of "custom nested fields") array
+
+Step 2: Improve your agent
+In the Build tab, review sample outputs to help you refine your schema definition and add instructions for better results.
+
+On the left, review sample responses and provide feedback to tune your agent. These samples are based on your current agent configuration.
+
+Click on a row to review the full input and response.
+At the bottom, next to Is this response correct?, provide feedback by selecting either Thumbs up icon. Yes or Thumbs down icon. Fix it. For Fix it feedback, provide additional details on how the agent should change its response, and then click Check icon. Save.
+After you've finished reviewing all responses, click Check icon. Yes, update agent. Or, you can click Save feedback and update after reviewing at least three responses.
+On the right, under Output fields, refine the descriptions for your extraction schema fields. These descriptions are what the agent relies on to understand what you want to extract. Use the sample responses on the left to help you refine the schema definition.
+
+For each field, review and edit the schema definition as needed. Use the sample responses on the left to help you refine these descriptions.
+To edit the field name and type, click Pencil icon. Edit field.
+To add a new field, click Plus icon. Add new field. Enter the name, type, and description, and click Confirm.
+To remove a field, click Trash icon. Remove field.
+Click Save and update to update your agent configuration.
+(Optional) On the right, under Instructions, enter any global instructions for your agent. These instructions apply to all extracted elements. Click Save and update to apply the instructions.
+
+New sample responses are generated on the left side. Review these updated responses and continue to refine your agent configuration until the responses are satisfactory.
+
+Step 3: Use your agent
+You can use your agent in workflows across Databricks.
+
+To start using your agent, click Use. You can choose to use your agent in several ways:
+
+Extract data for all documents: Click Start extraction to open the SQL editor and use ai_query to send requests to your new information extraction agent.
+Create ETL pipeline: Click Create pipeline to deploy a pipeline that runs at scheduled intervals to use your agent on new data. See Lakeflow Spark Declarative Pipelines for more information about pipelines.
+Test your agent: Click Open in Playground to try out your Agent in a test environment to see how it works. See Chat with LLMs and prototype generative AI apps using AI Playground to learn more about AI Playground.
+(Optional) Step 4: Evaluate your agent
+To ensure you've built a high-quality agent, run an evaluation and review the resulting quality report.
+
+Switch to the Quality tab.
+
+Click Plus icon. Run evaluation.
+
+On the New Evaluation pane that slides out, configure the evaluation:
+
+Select the evaluation run name. You can choose to use a generated name or to provide a custom name.
+Select the evaluation dataset. You can choose to use the same source dataset used to build your agent or provide a custom evaluation dataset using labeled or unlabelled data.
+Click Start evaluation.
+
+After your evaluation run completes, review the quality report:
+
+A Summary view is shown by default. Review the overall quality, cost, throughput, and summary report of the evaluation metrics. Click Info book icon. next to the schema field to see how that field is evaluated.
+
+Summary view of the evaluation report.
+
+Switch to the Detailed view for additional details. This view shows each request and the evaluation score for each metric. Click into a request to see additional details, such as the input, output, assessments, traces, and linked prompts. You can also edit the request's assessments and provide additional feedback.
+
+Detailed view of the evaluation report.
+
+Query the agent endpoint
+On the agent page, click Model serving icon. See Agent status in the upper-right to get your deployed agent endpoint and see endpoint details.
+
+There are multiple ways to query the created agent endpoint. Use the code examples provided in AI Playground as a starting point:
+
+On the agent page, click Use.
+Click Open in playground.
+From Playground, click Get code.
+Choose how you want to use the endpoint:
+Select Apply on data to create a SQL query that applies the agent to a specific table column.
+Select Curl API for a code example to query the endpoint using curl.
+Select Python API for a code example to interact with the endpoint using Python.
+Manage permissions
+By default, only Agent Bricks authors and workspace admins have permissions to the agent. To allow other users to edit or query your agent, you need to explicitly grant them permission.
+
+To manage permissions on your agent:
+
+Open your agent in Agent Bricks.
+At the top, click the Kebab menu icon. kebab menu.
+Click Manage permissions.
+In the Permission Settings window, select the user, group, or service principal.
+Select the permission to grant:
+Can Manage: Allows managing the Agent Bricks, including setting permissions, editing the agent configuration, and improving its quality.
+Can Query: Allows querying the Agent Bricks endpoint in AI Playground and through the API. Users with only this permission cannot view or edit the agent in Agent Bricks.
+Click Add.
+Click Save.
+note
+For agent endpoints created before September 16, 2025, you can grant Can Query permissions to the endpoint from the Serving endpoints page.
+
+Use PDFs in Agent Bricks
+PDFs are not yet supported natively in Agent Bricks: Information Extraction and Custom LLM. However, you can use Agent Brick's UI workflow to convert a folder of PDF files into markdown, then use the resulting Unity Catalog table as input when building your agent. This workflow uses ai_parse_document for the conversion. Follow these steps:
+
+Click Agents in the left navigation pane to open Agent Bricks in Databricks.
+
+In the Information Extraction or Custom LLM use cases, click Use PDFs.
+
+In the side panel that opens, enter the following fields to create a new workflow to convert your PDFs:
+
+Select folder with PDFs or images: Select the Unity Catalog folder containing the PDFs you want to use.
+Select destination table: Select the destination schema for the converted markdown table and, optionally, adjust the table name in the field below.
+Select active SQL warehouse: Select the SQL warehouse to run the workflow.
+Configure workflow to use PDFs in Agent Bricks.
+
+Click Start import.
+
+You will be redirected to the All workflows tab, which lists all of your PDF workflows. Use this tab to monitor the status of your jobs.
+
+Review workflow status to use PDFs in Agent Bricks.
+
+If your workflow fails, click on the job name to open it and view error messages to help you debug.
+
+When your workflow has completed successfully, click on the job name to open the table in Catalog Explorer to explore and understand the columns.
+
+Use the Unity Catalog table as input data in Agent Bricks when configuring your agent.
+
+Limitations
+Information Extraction agents have a 128k token max context length.
+Workspaces that have Enhanced Security and Compliance enabled are not supported.
+Union schema types are not supported.
+
+
+arge language models are challenging to adapt to new enterprise tasks. Prompting is error-prone and achieves limited quality gains, while fine-tuning requires large amounts of human-labeled data that is not available for most enterprise tasks. Today, we’re introducing a new model tuning method that requires only unlabeled usage data, letting enterprises improve quality and cost for AI using just the data they already have. Our method, Test-time Adaptive Optimization (TAO), leverages test-time compute (as popularized by o1 and R1) and reinforcement learning (RL) to teach a model to do a task better based on past input examples alone, meaning that it scales with an adjustable tuning compute budget, not human labeling effort. Crucially, although TAO uses test-time compute, it uses it as part of the process to train a model; that model then executes the task directly with low inference costs (i.e., not requiring additional compute at inference time). Surprisingly, even without labeled data, TAO can achieve better model quality than traditional fine-tuning, and it can bring inexpensive open source models like Llama to within the quality of costly proprietary models like GPT-4o and o3-mini.
+
+TAO is part of our research team’s program on Data Intelligence — the problem of making AI excel at specific domains using the data enterprises already have. With TAO, we achieve three exciting results:
+
+On specialized enterprise tasks such as document question answering and SQL generation, TAO outperforms traditional fine-tuning on thousands of labeled examples. It brings efficient open source models like Llama 8B and 70B to a similar quality as expensive models like GPT-4o and o3-mini1 without the need for labels.
+We can also use multi-task TAO to improve an LLM broadly across many tasks. Using no labels, TAO improves the performance of Llama 3.3 70B by 2.4% on a broad enterprise benchmark.
+Increasing TAO’s compute budget at tuning time yields better model quality with the same data, while the inference costs of the tuned model stay the same.
+Figure 1 shows how TAO improves Llama models on three enterprise tasks: FinanceBench, DB Enterprise Arena, and BIRD-SQL (using the Databricks SQL dialect)². Despite only having access to LLM inputs, TAO outperforms traditional fine-tuning (FT) with thousands of labeled examples and brings Llama within the same range as expensive proprietary models.
+
+Figure 1 shows how TAO improves Llama models on three enterprise tasks: FinanceBench, DB Enterprise Arena, and BIRD-SQL 
+
+Figure 1 shows how TAO improves Llama models on three enterprise tasks: FinanceBench, DB Enterprise Arena, and BIRD-SQL 
+
+Figure 1: TAO on Llama 3.1 8B and Llama 3.3 70B across three enterprise benchmarks. TAO leads to substantial improvements in quality, outperforming fine-tuning and challenging expensive proprietary LLMs.
+
+TAO is now available in preview to Databricks customers who want to tune Llama, and it will be powering several upcoming products. Fill out this form to express your interest in trying it on your tasks as part of the private preview. In this post, we describe more about how TAO works and our results with it.
+
+How Does TAO Work? Using Test-Time Compute and Reinforcement Learning to Tune Models
+Instead of requiring human annotated output data, the key idea in TAO is to use test-time compute to have a model explore plausible responses for a task, then use reinforcement learning to update an LLM based on evaluating these responses. This pipeline can be scaled using test-time compute, instead of expensive human effort, to increase quality. Moreover, it can easily be customized using task-specific insights (e.g., custom rules). Surprisingly, applying this scaling with high-quality open source models leads to better results than human labels in many cases.
+
+The LIFT pipeline. LIFT automatically generates and scores responses for a task using inference scaling and learns to tune a model based on noisy feedback. 
+Figure 2: The TAO pipeline.
+Specifically, TAO comprises four stages:
+
+Response Generation: This stage begins with collecting example input prompts or queries for a task. On Databricks, these prompts can be automatically collected from any AI application using our AI Gateway. Each prompt is then used to generate a diverse set of candidate responses. A rich spectrum of generation strategies can be applied here, ranging from simple chain-of-thought prompting to sophisticated reasoning and structured prompting techniques.
+Response Scoring: In this stage, generated responses are systematically evaluated. Scoring methodologies include a variety of strategies, such as reward modeling, preference-based scoring, or task-specific verification utilizing LLM judges or custom rules. This stage ensures each generated response is quantitatively assessed for quality and alignment with criteria.
+Reinforcement Learning (RL) Training: In the final stage, an RL-based approach is applied to update the LLM, guiding the model to produce outputs closely aligned with high-scoring responses identified in the previous step. Through this adaptive learning process, the model refines its predictions to enhance quality.
+Continuous Improvement: The only data TAO needs is example LLM inputs. Users naturally create this data by interacting with an LLM. As soon as your LLM is deployed, you begin generating training data for the next round of TAO. On Databricks, your LLM can get better the more you use it, thanks to TAO.
+Crucially, although TAO uses test-time compute, it uses it to train a model that then executes a task directly with low inference costs. This means that the models produced by TAO have the same inference cost and speed as the original model - significantly less than test-time compute models like o1, o3 and R1. As our results show, efficient open source models trained with TAO can challenge leading proprietary models in quality.
+
+TAO provides a powerful new method in the toolkit for tuning AI models. Unlike prompt engineering, which is slow and error–prone, and fine-tuning, which requires producing expensive and high-quality human labels, TAO lets AI engineers achieve great results by simply providing representative input examples of their task.
+
+Comparison of LLM tuning methods.
+Table 1: Comparison of LLM tuning methods.
+TAO is a highly flexible method that can be customized if needed, but our default implementation in Databricks works well out-of-the-box on diverse enterprise tasks. At the core of our implementation are new reinforcement learning and reward modeling techniques our team developed that enable TAO to learn by exploration and then tune the underlying model using RL. For example, one of the ingredients powering TAO is a custom reward model we trained for enterprise tasks, DBRM, that can produce accurate scoring signals across a wide range of tasks.
+
+Improving Task Performance with TAO
+In this section, we dive deeper into how we used TAO to tune LLMs on specialized enterprise tasks. We selected three representative benchmarks, including popular open source benchmarks and internal ones we developed as part of our Domain Intelligence Benchmark Suite (DIBS).
+
+ Table 2: Overview of benchmarks used in this blog.
+Table 2: Overview of benchmarks used in this blog.
+For each task, we evaluated several approaches:
+
+Using an open source Llama model (Llama 3.1-8B or Llama 3.3-70B) out of the box.
+Fine-tuning on Llama. To do this, we used or created large, realistic input-output datasets with thousands of examples, which is usually what is required to achieve good performance with fine-tuning. These included:
+7200 synthetic questions about SEC documents for FinanceBench.
+4800 human-written inputs for DB Enterprise Arena.
+8137 examples from the BIRD-SQL training set, modified to match the Databricks SQL dialect.
+TAO on Llama, using just the example inputs from our fine-tuning datasets, but not the outputs, and using our DBRM enterprise-focused reward model. DBRM itself is not trained on these benchmarks.
+High-quality proprietary LLMs – GPT 4o-mini, GPT 4o and o3-mini. 
+As shown in Table 3, across all three benchmarks and both Llama models, TAO significantly improves the baseline Llama performance, even beyond that of fine-tuning. 
+
+Table 3: TAO on Llama 3.1 8B and Llama 3.3 70B across three enterprise benchmarks.
+Table 3: TAO on Llama 3.1 8B and Llama 3.3 70B across three enterprise benchmarks.
+Like classic test-time compute, TAO produces higher-quality results when it is given access to more compute (see Figure 3 for an example). Unlike test-time compute, however, this additional compute is only used during the tuning phase; the final LLM has the same inference cost as the original LLM. For example, o3-mini produces 5-10x more output tokens than the other models on our tasks, resulting in a proportionally higher inference cost, while TAO has the same inference cost as the original Llama model. 
+
+Figure 3: TAO scales with the amount of test-time compute used during the tuning process. Inference cost to use the resulting LLM is the same as the original LLM.
+Figure 3: TAO scales with the amount of test-time compute used during the tuning process. Inference cost to use the resulting LLM is the same as the original LLM.
+Improving Multitask Intelligence with TAO
+So far, we’ve used TAO to improve LLMs on individual narrow tasks, such as SQL generation. However, as agents become more complex, enterprises increasingly need LLMs that can perform more than one task. In this section, we show how TAO can broadly improve model performance across a range of enterprise tasks.
+
+In this experiment, we gathered 175,000 prompts that reflect a diverse set of enterprise tasks, including coding, math, question-answering, document understanding, and chat. We then ran TAO on Llama 3.1 70B and Llama 3.3 70B. Finally, we tested a suite of enterprise-relevant tasks, which includes popular LLM benchmarks (e.g. Arena Hard, LiveBench, GPQA Diamond, MMLU Pro, HumanEval, MATH) and internal benchmarks in multiple areas relevant to enterprises.
+
+TAO meaningfully improves the performance of both models[t][u]. Llama 3.3 70B and Llama 3.1 70B improve by 2.4 and 4.0 percentage points, respectively. TAO brings Llama 3.3 70B significantly closer to GPT-4o on enterprise tasks[v][w]. All of this is achieved with no human labeling cost, just representative LLM usage data and our production implementation of TAO. Quality improves across every subscore except coding, where performance is static.
+
+Table 4: Improving multitask enterprise intelligence using TAO
+Table 4: Improving multitask enterprise intelligence using TAO
+Using TAO in Practice
+TAO is a powerful tuning method that works surprisingly well on many tasks by leveraging test-time compute. To use it successfully on your own tasks, you will need:
+
+Sufficient example inputs for your task (several thousand), either collected from a deployed AI application (e.g., questions sent to an agent) or generated synthetically.
+A sufficiently accurate scoring method: for Databricks customers, one powerful tool here is our custom reward model, DBRM, that powers our implementation of TAO, but you can augment DBRM with custom scoring rules or verifiers if they are applicable for your task.
+One best practice that will enable TAO and other model improvement methods is to create a data flywheel for your AI applications. As soon as you deploy an AI application, you can collect inputs, model outputs, and other events through services like Databricks Inference Tables. You can then use just the inputs to run TAO. The more people use your application, the more data you will have to tune it on, and - thanks to TAO - the better your LLM will get.
+
+Conclusion and Getting Started on Databricks
+In this blog, we presented Test-time Adaptive Optimization (TAO), a new model tuning technique that achieves high-quality results without needing labeled data. We developed TAO to address a key challenge we saw enterprise customers facing: they lacked labeled data needed by standard fine-tuning. TAO uses test-time compute and reinforcement learning to improve models using data that enterprises already have, such as input examples, making it straightforward to improve any deployed AI application in quality and reduce cost by using smaller models. TAO is a highly flexible method that shows the power of test-time compute for specialized AI development, and we believe it will give developers a powerful and simple new tool to use alongside prompting and fine-tuning.
+
+Databricks customers are already using TAO on Llama in private preview. Fill out this form to express your interest in trying it on your tasks as part of the private preview. TAO is also being incorporated into many of our upcoming AI product updates and launches - stay tuned!
+
+¹ Authors: Raj Ammanabrolu, Ashutosh Baheti, Jonathan Chang, Xing Chen, Ta-Chung Chi, Brian Chu, Brandon Cui, Erich Elsen, Jonathan Frankle, Ali Ghodsi, Pallavi Koppol, Sean Kulinski, Jonathan Li, Dipendra Misra, Jose Javier Gonzalez Ortiz, Sean Owen, Mihir Patel, Mansheej Paul, Cory Stephenson, Alex Trott, Ziyi Yang, Matei Zaharia, Andy Zhang, Ivan Zhou 
+
+
+Why do coding agents work so well and what would it take to replicate their success in other domains? One important and under-appreciated reason is that agentic coding is a type of neurosymbolic AI.
+
+The main weakness of LLMs is that they are statistical machines and struggle at tasks involving long chains of logic / symbol manipulation. Of course, traditional code is the opposite. The magic of agentic coding is that it fuses the two — there is a lot of code *execution* during code generation. This is a subtle point so let me spell it out.
+
+* Most obviously, agents run the generated code itself, run tests, etc. This makes coding a verifiable domain. It is well known that in verifiable domains, inference scaling is highly effective as agents can fix their own mistakes. It also allows reinforcement learning to be highly effective.
+
+* Next, code generation often takes advantage of existing symbolic tools like compilers that have been optimized and perfected over decades. Imagine if LLMs had to directly output binary code instead. (They sometimes can, and it's a cool trick, but it's no way to do software engineering.)
+
+* IMO the biggest neurosymbolic unlock is the shell, which allows a dramatic expansion in capabilities by using existing tools to effectively do complex editing tasks. Many of us remember the feeling of wizardry when we gained shell fluency. LLMs are able to pick up shell knowledge and best practices through pre-training because it is extensively documented on places like StackOverflow.
+
+* Finally, more complex agentic coding tasks often involve LLMs writing code that in turn invokes LLMs. In principle you can have an arbitrary depth of recursion between statistical and symbolic systems.
+
+Neurosymbolic AI is a touchy topic and many people have their own favored conception of what it should look like. And admittedly agentic coding uses really crude patterns, with LLMs and code being loosely coupled. But the point is — it works! LLMs are able to use the giant warehouse of tools that humans have built over the decades to reach ever-increasing levels of abstraction and complexity.
+
+To build agentic systems in other domains, here’s what we need. First, it must be a verifiable domain. Math is and writing isn’t. There’s no getting around that. Provided we’re in a friendly domain, it all comes down to whether we can build a symbolic toolbox, and how well LLMs can be trained to use that toolbox. IMO this is where the alpha will be, more so than in LLM capabilities themselves.
+
+
+Foundry IQ: Unlocking ubiquitous knowledge for agents
+pablocastro's avatar
+pablocastro
+Icon for Microsoft rank
+Microsoft
+Nov 18, 2025
+Introducing the next generation of RAG, to fuel every agent with enterprise context.
+Agents have become a part of everyday work at frontier firms. As organizations scale from a handful of copilots to dozens of agents, a familiar challenge emerges: every team is rebuilding its own way to connect models with business context: homegrown RAG pipelines, one-off vector databases, access control complexity, and enterprise governance all create friction for developers to build.
+
+With Foundry IQ in public preview, we are launching something different, a unified knowledge layer for agents. It is an agent’s single endpoint for knowledge, delivering better context with automated source routing and advanced agentic retrieval, all while respecting user permissions.
+
+Built on Azure AI Search, we are expanding Microsoft Foundry with new preview capabilities to bring this knowledge layer to life:
+
+Foundry IQ knowledge bases: Available directly in the new Foundry portal, knowledge bases are reusable, topic-centric collections that ground multiple agents and applications through a single API. Building agents becomes simpler, no longer requiring a tangle of data tools stitched into every project.
+Automatic access to indexed and federated knowledge sources: Expand what data an agent can reach by connecting to both indexed and remote knowledge sources. For indexed sources, Foundry IQ delivers automatic indexing, vectorization, and enrichment for text, images, and complex documents.
+Agentic retrieval engine in knowledge bases: A self-reflective query engine that uses AI to plan, search, and synthesize answers across sources with configurable “retrieval reasoning effort.”
+Enterprise-grade security and governance – Support for document-level access control, alignment with existing permissions models, and options for both indexed and remote data.
+Foundry IQ is a culmination of the intelligence of Microsoft Cloud, your custom applications, and the web.  This announcement is part of Microsoft Cloud-wide initiative to power every organization with universal enterprise context.  Work IQ from Microsoft 365 provides signals on how your organization operates, Fabric IQ brings business meaning to the data in Power BI, and Foundry IQ unifies and centralizes access to knowledge to ground every agent with the right context.
+
+
+From custom pipelines to reusable knowledge
+Traditional RAG puts a heavy tax on every new project. Every team must rebuild data connections, chunking logic, embeddings, routing and permissions from scratch. It leaves organizations with a mess of fragmented, duplicated pipelines all trying to answer the same question in a silo: what context does the model need to respond effectively?
+
+
+Foundry IQ shifts that work into knowledge bases. Instead of wiring retrieval logic into every agent, you define a reusable knowledge base around a topic (such as employee policies, product documentation, or support content) and create it in Foundry portal. From there, any number of agents and applications can connect and be grounded with that same knowledge base.
+
+
+Behind the scenes, Foundry IQ accesses data across indexed and remote knowledge sources: M365 SharePoint, Fabric IQ, OneLake, Azure Blob Storage, Azure AI Search, the web, and MCP in private preview, and all contribute to the same knowledge base. Developers do not need to manage routing or implement different retrieval strategies per source; the knowledge base presents a simple but sophisticated endpoint for agents to query.
+
+For indexed sources, Foundry IQ automatically manages the full indexing pipeline: content is ingested, chunked, vectorized, and prepared for hybrid retrieval. When you enable Azure Content Understanding on supported sources, complex documents gain layout-aware enrichment as well—tables, figures, headers, and sections are extracted and structured for better retrieval without extra engineering steps.
+
+The effect is that getting started feels much closer to “plug in the knowledge this agent should have” than “rebuild a RAG stack.” Teams can stand up new agents by grounding them on existing knowledge bases, rather than recreating data connections, access rules, and retrieval logic for each project.
+
+Retrieval that plans, iterates, and respects context
+Single-shot RAG, where one query hits one index once, quickly runs into limits when questions are ambiguous, multi-step, or span several systems.  Foundry IQ uses an agentic retrieval engine inside knowledge bases to tackle these harder questions.
+
+When an agent calls a knowledge base, the engine treats retrieval as a reasoning task, not just a keyword lookup. It plans how to search, rewrites and decomposes the question when useful, reaches into multiple sources, evaluates whether it has enough signal, and iterates when it does not—before synthesizing context for the model, complete with citations.
+
+Developers guide this behavior through high-level controls rather than plumbing. A configurable retrieval reasoning effort setting lets you express what to prioritize: low effort for fast, lightweight lookups; higher effort when it is worth taking extra steps to gather better context from across the estate. At higher effort levels, the engine leans more on agentic techniques such as iterative search and richer planning over sources.
+
+Because the engine spans the full knowledge base, it can combine content from any supported source in one pass. That means an agent answering a customer question can draw on product manuals, troubleshooting flows, past tickets, and policy documents without developers implementing bespoke orchestration code.
+
+Customers already using Azure AI Search’s retrieval capabilities have seen what this kind of engine can do at scale:
+
+AT&T integrated Azure AI Search and retrieval-augmented generation into its multi-agent framework and reduced customer resolution times by 33 percent, cut average handle time by nearly 10 percent, and scaled 71 AI solutions to 100,000 employees—turning disconnected data into instant, trusted insights.
+Ontario Power Generation (OPG) used agentic retrieval “to sift through over 40 years of nuclear operating experience, unlocking data-driven decision-making and helping new staff quickly learn from decades of institutional knowledge. Its scalable, secure vector search and powerful reranking capabilities have put critical insights at our team’s fingertips.” -Mishca de Costa, OPG, Sr. Manager Digital Innovation & Strategy
+Foundry IQ brings that same retrieval strength into a managed knowledge layer, so every new agent can start from a proven foundation instead of reinventing RAG.
+
+Governance, observability, and end-to-end trust
+For agents to be truly enterprise-ready, organizations need guarantees about who can see what content, and how to trace a RAG agent’s behavior back to the content and policies that were used
+
+Foundry IQ is built on an enterprise-ready foundation with Entra-ID based governance. It respects user permissions for configured and supported knowledge sources. For the remote SharePoint knowledge source, data classifications and sensitivity labels from Microsoft Purview are respected through the indexing and retrieval pipeline. Classified content remains tagged and governed as it flows into knowledge bases, and policies you have defined in Purview continue to apply when agents are grounded on that data.  This closes one of the biggest gaps in DIY RAG, where retrieval stacks often have to approximate or duplicate security rules and policy in application code. For more on the latest AI Search security features, read our dedicated blog post. 
+
+With today’s announcement of Foundry IQ, Microsoft is building on the work of Azure AI Search to deliver a knowledge layer that is easy to use, capable, and secure at enterprise scale—so you can scale from experiments to mission-critical workflows with confidence.
+
+Get started today
+Get started with Foundry IQ knowledge bases in the new Foundry portal or in Azure AI Search.
+
+Video: Foundry IQ for multi-source AI knowledge bases
+Docs: Read Foundry IQ documentation
+Docs: What’s new in Azure AI Search
+Blog: Knowledge base retrieval quality evaluations and results
+Private preview: Sign up for MCP Server knowledge source private preview access
+Repo: Demo AI Search Purview sensitivity labels
+Repo: Azure sample RAG app with Azure AI Search and Azure OpenAI
+Demo app: Knowledge bases and agentic RAG
